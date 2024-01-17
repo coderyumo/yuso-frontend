@@ -2,18 +2,24 @@
   <div class="index-page">
     <a-input-search
       v-model:value="searchText"
-      placeholder="请输入搜索关键词"
       enter-button="搜索"
+      placeholder="请输入搜索关键词"
       size="large"
       @search="onSearch"
     />
     <MyDivider />
     <a-tabs v-model:activeKey="activeKey" @change="onTabChange">
+      <a-tab-pane key="picture" tab="图片">
+        <PictureList :picture-list="pictureList" />
+      </a-tab-pane>
       <a-tab-pane key="post" tab="文章">
         <PostList :post-list="postList" />
       </a-tab-pane>
-      <a-tab-pane key="picture" tab="图片">
-        <PictureList :picture-list="pictureList" />
+      <a-tab-pane key="videoBiLi" tab="视频（小破站）">
+        <VideoBiLiList :video-list="videoListBiLi" />
+      </a-tab-pane>
+      <a-tab-pane key="videoBing" tab="视频（必应）">
+        <VideoBingList :video-list="videoListBing" />
       </a-tab-pane>
       <a-tab-pane key="user" tab="用户">
         <UserList :user-list="userList" />
@@ -22,7 +28,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref, watchEffect } from "vue";
 import PostList from "@/components/PostList.vue";
 import PictureList from "@/components/PictureList.vue";
@@ -31,12 +37,18 @@ import MyDivider from "@/components/MyDivider.vue";
 import { useRoute, useRouter } from "vue-router";
 import myAxios from "@/plugins/myAxios";
 import { message } from "ant-design-vue";
+import VideoBiLiList from "@/components/VideoBiLiList.vue";
+import VideoBingList from "@/components/VideoBingList.vue";
 
 const postList = ref([]);
 
 const userList = ref([]);
 
 const pictureList = ref([]);
+
+const videoListBiLi = ref([]);
+
+const videoListBing = ref([]);
 
 const route = useRoute();
 const router = useRouter();
@@ -118,6 +130,10 @@ const loadData = (params: any) => {
       userList.value = res.dataList;
     } else if (type === "picture") {
       pictureList.value = res.dataList;
+    } else if (type === "videoBiLi") {
+      videoListBiLi.value = res.dataList;
+    } else if (type === "videoBing") {
+      videoListBing.value = res.dataList;
     }
   });
 };
@@ -130,7 +146,7 @@ watchEffect(() => {
     text: route.query.text,
     type: route.params.category,
   } as any;
-  loadDataOld(searchParams.value);
+  loadData(searchParams.value);
 });
 
 const onSearch = (value: string) => {
